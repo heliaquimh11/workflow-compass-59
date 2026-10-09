@@ -29,6 +29,13 @@
       "when": 1791550283286,
       "tag": "0003_legacy_fuel_import",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791550840734,
+      "tag": "0004_expand_base_tank_identifiers",
+      "breakpoints": true
     }
   ]
 }
