@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
-import { ArrowUpDown, Download, Droplets, Images, Search } from "lucide-react";
+import { ArrowUpDown, Download, Droplets, Fuel, Images, Search, Truck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
@@ -156,8 +156,22 @@ function Gestao() {
           <h1 className="text-4xl font-bold uppercase">Análise e Controle de Consumo</h1>
           <p className="text-muted-foreground">Atualização em tempo real</p>
         </div>
-        <Button onClick={exportXlsx} disabled={!session} className="touch-target gap-2 px-6 text-base font-bold">
-          <Download className="h-5 w-5" /> Exportar para Excel
+        <div className="flex flex-wrap gap-3">
+          <Button asChild className="touch-target gap-2 px-6 text-base font-bold">
+            <Link to="/consumo"><Fuel className="h-5 w-5" /> Registrar Abastecimento</Link>
+          </Button>
+          <Button variant="outline" onClick={exportXlsx} disabled={!session} className="touch-target gap-2 px-6 text-base font-bold">
+            <Download className="h-5 w-5" /> Exportar para Excel
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <Button asChild variant="outline" className="touch-target gap-2">
+          <Link to="/tanque"><Droplets className="h-5 w-5" /> Atualizar Tanque</Link>
+        </Button>
+        <Button asChild variant="outline" className="touch-target gap-2">
+          <Link to="/pedido"><Truck className="h-5 w-5" /> Pedir Combustível</Link>
         </Button>
       </div>
 
