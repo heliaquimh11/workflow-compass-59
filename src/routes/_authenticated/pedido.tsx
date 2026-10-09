@@ -23,6 +23,8 @@ export const Route = createFileRoute("/_authenticated/pedido")({
     meta: [
       { title: "Pedir Combustível | Controle de Abastecimento" },
       { name: "description", content: "Solicitação de nova carga de combustível para a base." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { property: "og:title", content: "Pedir Combustível" },
       { property: "og:description", content: "Solicite carga de combustível com confirmação prévia." },
     ],
@@ -41,13 +43,14 @@ function Pedido() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (Number(desired) <= 0) return toast.error("Quantidade desejada deve ser maior que zero.");
-    if (!last) return toast.error("Informe a última entrega de combustível.");
+    if (Number(desired) <= 0) { toast.error("Quantidade desejada deve ser maior que zero."); return; }
+    if (!last) { toast.error("Informe a última entrega de combustível."); return; }
     setBusy(true);
     const tId = toast.loading("Enviando pedido…");
     try {
       const { data: u } = await supabase.auth.getUser();
-      const uid = u.user!.id;
+      if (!u.user) throw new Error("Sessão expirada. Entre novamente.");
+      const uid = u.user.id;
       const urls = files.length
         ? await uploadPhotos(files, "fuel_requests", uid, (d, t) => toast.loading(`Enviando fotos ${d}/${t}…`, { id: tId }))
         : [];

@@ -13,6 +13,8 @@ export const Route = createFileRoute("/_authenticated/consumo")({
     meta: [
       { title: "Abastecimento de Veículo | Controle de Abastecimento" },
       { name: "description", content: "Registro de consumo de combustível por veículo com evidências fotográficas." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { property: "og:title", content: "Abastecimento de Veículo" },
       { property: "og:description", content: "Registre placa, hodômetro, litragem e fotos." },
     ],
@@ -31,15 +33,16 @@ function Consumo() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!PLATE_RE.test(plate)) return toast.error("Placa inválida. Use o formato ABC1D23.");
-    if (!tank) return toast.error("Selecione a origem do tanque.");
-    if (Number(liters) <= 0) return toast.error("Litragem deve ser maior que zero.");
-    if (files.length < 3) return toast.error("Envie no mínimo 3 fotos.");
+    if (!PLATE_RE.test(plate)) { toast.error("Placa inválida. Use o formato ABC1D23."); return; }
+    if (!tank) { toast.error("Selecione a origem do tanque."); return; }
+    if (Number(liters) <= 0) { toast.error("Litragem deve ser maior que zero."); return; }
+    if (files.length < 3) { toast.error("Envie no mínimo 3 fotos."); return; }
     setBusy(true);
     const tId = toast.loading("Enviando fotos…");
     try {
       const { data: u } = await supabase.auth.getUser();
-      const uid = u.user!.id;
+      if (!u.user) throw new Error("Sessão expirada. Entre novamente.");
+      const uid = u.user.id;
       const urls = await uploadPhotos(files, "fuel_logs", uid, (d, t) => toast.loading(`Enviando fotos ${d}/${t}…`, { id: tId }));
       const { error } = await supabase.from("fuel_logs").insert({
         user_id: uid,

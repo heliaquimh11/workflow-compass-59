@@ -13,6 +13,8 @@ export const Route = createFileRoute("/_authenticated/tanque")({
     meta: [
       { title: "Nível do Tanque | Controle de Abastecimento" },
       { name: "description", content: "Atualização do volume disponível nos tanques Leste e Norte." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { property: "og:title", content: "Nível do Tanque" },
       { property: "og:description", content: "Informe a quantidade de litros nos tanques." },
     ],
@@ -29,13 +31,14 @@ function Tanque() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!tank) return toast.error("Selecione o tanque.");
-    if (Number(liters) < 0 || liters === "") return toast.error("Informe a quantidade de litros.");
+    if (!tank) { toast.error("Selecione o tanque."); return; }
+    if (Number(liters) < 0 || liters === "") { toast.error("Informe a quantidade de litros."); return; }
     setBusy(true);
     const tId = toast.loading("Salvando…");
     try {
       const { data: u } = await supabase.auth.getUser();
-      const uid = u.user!.id;
+      if (!u.user) throw new Error("Sessão expirada. Entre novamente.");
+      const uid = u.user.id;
       const urls = files.length
         ? await uploadPhotos(files, "tank_levels", uid, (d, t) => toast.loading(`Enviando fotos ${d}/${t}…`, { id: tId }))
         : [];

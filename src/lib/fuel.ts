@@ -18,7 +18,7 @@ export function formatPlate(raw: string) {
   const s = raw.toUpperCase().replace(/[^A-Z0-9]/g, "");
   let out = "";
   for (let i = 0; i < s.length && out.length < 7; i++) {
-    const c = s[i];
+    const c = s.charAt(i);
     const pos = out.length;
     if (pos < 3 && /[A-Z]/.test(c)) out += c;
     else if (pos === 3 && /[0-9]/.test(c)) out += c;

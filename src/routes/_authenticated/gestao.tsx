@@ -15,6 +15,8 @@ export const Route = createFileRoute("/_authenticated/gestao")({
     meta: [
       { title: "Gestão e Análise de Consumo | Controle de Abastecimento" },
       { name: "description", content: "Dashboard em tempo real dos tanques, busca por placa e exportação para Excel." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { property: "og:title", content: "Gestão e Análise de Consumo" },
       { property: "og:description", content: "Tanques em tempo real, histórico por veículo e relatórios." },
     ],
@@ -27,7 +29,7 @@ type Level = Tables<"tank_levels">;
 type Req = Tables<"fuel_requests">;
 type SortKey = "fuel_date_time" | "license_plate" | "odometer" | "liters" | "tank_location";
 const PAGE = 15;
-const CAPACITY_HINT = 30000;
+
 
 function Gestao() {
   const [logs, setLogs] = useState<Log[]>([]);
@@ -89,7 +91,7 @@ function Gestao() {
 
   const totalLiters = filtered.reduce((s, l) => s + Number(l.liters), 0);
   const lastOdo = filtered.length
-    ? [...filtered].sort((a, b) => +new Date(b.fuel_date_time) - +new Date(a.fuel_date_time))[0].odometer
+    ? [...filtered].sort((a, b) => +new Date(b.fuel_date_time) - +new Date(a.fuel_date_time))[0]?.odometer
     : null;
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE));
   const rows = filtered.slice(page * PAGE, page * PAGE + PAGE);
@@ -145,7 +147,7 @@ function Gestao() {
       <div className="grid gap-4 md:grid-cols-2">
         {(["Leste", "Norte"] as const).map((t) => {
           const l = latest(t);
-          const pct = l ? Math.min(100, (Number(l.current_liters) / CAPACITY_HINT) * 100) : 0;
+          
           return (
             <div key={t} className="relative overflow-hidden rounded-2xl bg-navy p-6 text-navy-foreground shadow-lg">
               <div className="flex items-start justify-between">
@@ -160,9 +162,7 @@ function Gestao() {
                 </div>
                 <Droplets className="h-10 w-10 text-primary" />
               </div>
-              <div className="mt-5 h-3 overflow-hidden rounded-full bg-navy-2">
-                <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
-              </div>
+
             </div>
           );
         })}
