@@ -77,7 +77,7 @@ function Pedido() {
   return (
     <div className="mx-auto max-w-xl px-4 py-6">
       <AlertDialog open={!ack}>
-        <AlertDialogContent className="border-t-8 border-t-warning">
+        <AlertDialogContent className="mobile-critical-sheet border-t-8 border-t-warning">
           <AlertDialogHeader>
             <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-warning text-warning-foreground">
               <AlertTriangle className="h-8 w-8" />

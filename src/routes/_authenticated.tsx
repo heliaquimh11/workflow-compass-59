@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 const opTabs = [
-  { to: "/consumo", label: "Abastecimento", icon: Fuel },
+  { to: "/consumo", label: "Consumo", icon: Fuel },
   { to: "/tanque", label: "Tanque", icon: Droplets },
   { to: "/pedido", label: "Pedir Combustível", icon: Truck },
 ] as const;
@@ -82,7 +82,7 @@ function Layout() {
       <main>
         <Outlet />
       </main>
-      <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t bg-navy lg:hidden">
+      <nav aria-label="Navegação de campo" className="field-navigation fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t bg-navy lg:hidden">
         {opTabs.map((t) => (
           <Link
             key={t.to}

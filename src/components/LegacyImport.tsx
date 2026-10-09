@@ -25,12 +25,12 @@ export function LegacyImport({ disabled, onImported }: { disabled: boolean; onIm
   const selectFile = async (file?: File) => {
     if (!file) return;
     setError(""); setResult(null); setSheets([]); setFilename("");
-    if (!/\.xlsx$/i.test(file.name)) { setError("Selecione uma planilha .xlsx."); return; }
+    if (!/\.(xlsx|csv)$/i.test(file.name)) { setError("Selecione uma planilha .xlsx ou .csv."); return; }
     if (file.size > 20 * 1024 * 1024) { setError("O arquivo deve ter no máximo 20 MB."); return; }
     setBusy(true);
     try {
       const buffer = await file.arrayBuffer();
-      const parsed = readLegacySheets(buffer);
+      const parsed = readLegacySheets(buffer, file.name);
       const first = parsed[0];
       if (!first || !parsed.some((s) => s.rows.length)) throw new Error("A planilha não contém registros.");
       const hash = await crypto.subtle.digest("SHA-256", buffer);
@@ -56,17 +56,17 @@ export function LegacyImport({ disabled, onImported }: { disabled: boolean; onIm
 
   return <>
     <Button variant="outline" disabled={disabled} onClick={() => setOpen(true)} className="touch-target gap-2">
-      <Upload className="h-5 w-5" /> Importar Planilha Legada
+      <Upload className="h-5 w-5" /> Importar Planilha
     </Button>
     <Dialog open={open} onOpenChange={(value) => { if (!busy) setOpen(value); }}>
       <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto" onEscapeKeyDown={(e) => { if (busy) e.preventDefault(); }} onPointerDownOutside={(e) => { if (busy) e.preventDefault(); }}>
         <DialogHeader>
           <DialogTitle>Importar Abastecimentos Legados</DialogTitle>
-          <DialogDescription>Planilha .xlsx · Fotos opcionais · Até 10.000 registros por aba</DialogDescription>
+          <DialogDescription>Planilha .xlsx ou .csv · Fotos opcionais · Até 10.000 registros por aba</DialogDescription>
         </DialogHeader>
-        <input ref={input} aria-label="Planilha legada" type="file" accept=".xlsx" className="hidden" disabled={busy} onChange={(e) => { void selectFile(e.target.files?.[0]); e.target.value = ""; }} />
+        <input ref={input} aria-label="Planilha legada" type="file" accept=".xlsx,.csv" className="hidden" disabled={busy} onChange={(e) => { void selectFile(e.target.files?.[0]); e.target.value = ""; }} />
         <div className="flex min-h-24 items-center justify-between gap-3 rounded-lg border-2 border-dashed border-primary bg-muted p-4" onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); if (!busy) void selectFile(e.dataTransfer.files[0]); }}>
-          <div className="flex min-w-0 items-center gap-3"><FileSpreadsheet className="h-8 w-8 shrink-0 text-cyan-deep" /><span className="break-all text-sm font-medium">{filename || "Planilha .xlsx"}</span></div>
+          <div className="flex min-w-0 items-center gap-3"><FileSpreadsheet className="h-8 w-8 shrink-0 text-cyan-deep" /><span className="break-all text-sm font-medium">{filename || "Planilha .xlsx ou .csv"}</span></div>
           <Button variant="outline" disabled={busy} onClick={() => input.current?.click()}><Upload className="mr-2 h-4 w-4" /> Selecionar</Button>
         </div>
         {sheet && <>
