@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { fmtDateTime, fmtNum } from "@/lib/fuel";
+import { useSession } from "@/lib/auth";
 
 export const Route = createFileRoute("/_authenticated/gestao")({
   head: () => ({
@@ -41,6 +42,8 @@ async function readAll<T>(table: "fuel_logs" | "tank_levels" | "fuel_requests"):
 }
 
 function Gestao() {
+  const { session } = useSession();
+  const userId = session?.user.id;
   const [logs, setLogs] = useState<Log[]>([]);
   const [levels, setLevels] = useState<Level[]>([]);
   const [reqs, setReqs] = useState<Req[]>([]);
@@ -59,6 +62,10 @@ function Gestao() {
   };
 
   useEffect(() => {
+    if (!userId) {
+      setLogs([]); setLevels([]); setReqs([]);
+      return;
+    }
     load();
     const ch = supabase
       .channel("gestao-realtime")
@@ -69,7 +76,7 @@ function Gestao() {
     return () => {
       supabase.removeChannel(ch);
     };
-  }, []);
+  }, [userId]);
 
   const latest = (t: string) =>
     levels
@@ -105,6 +112,7 @@ function Gestao() {
   const toggleSort = (k: SortKey) => setSort((s) => ({ k, asc: s.k === k ? !s.asc : true }));
 
   const exportXlsx = async () => {
+    if (!session) return;
     try {
     const [logs, levels, reqs] = await Promise.all([readAll<Log>("fuel_logs"), readAll<Level>("tank_levels"), readAll<Req>("fuel_requests")]);
     const wb = XLSX.utils.book_new();
@@ -148,7 +156,7 @@ function Gestao() {
           <h1 className="text-4xl font-bold uppercase">Análise e Controle de Consumo</h1>
           <p className="text-muted-foreground">Atualização em tempo real</p>
         </div>
-        <Button onClick={exportXlsx} className="touch-target gap-2 px-6 text-base font-bold">
+        <Button onClick={exportXlsx} disabled={!session} className="touch-target gap-2 px-6 text-base font-bold">
           <Download className="h-5 w-5" /> Exportar para Excel
         </Button>
       </div>

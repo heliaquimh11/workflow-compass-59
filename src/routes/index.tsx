@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { useSession } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -17,12 +16,9 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { session, loading } = useSession();
   const navigate = useNavigate();
   useEffect(() => {
-    if (loading) return;
-    if (!session) navigate({ to: "/login", replace: true });
-    else navigate({ to: window.innerWidth < 1024 ? "/consumo" : "/gestao", replace: true });
-  }, [session, loading, navigate]);
+    navigate({ to: window.innerWidth < 1024 ? "/consumo" : "/gestao", replace: true });
+  }, [navigate]);
   return <div className="flex min-h-screen items-center justify-center bg-navy text-navy-foreground">Carregando…</div>;
 }

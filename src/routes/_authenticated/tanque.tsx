@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, TankToggle, inputCls } from "@/components/Field";
 import { PhotoPicker } from "@/components/PhotoPicker";
+import { useSession } from "@/lib/auth";
 import { localInputToISO, nowLocalInput, uploadPhotos } from "@/lib/fuel";
 
 export const Route = createFileRoute("/_authenticated/tanque")({
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/_authenticated/tanque")({
 });
 
 function Tanque() {
+  const { session } = useSession();
   const [tank, setTank] = useState<"Leste" | "Norte" | "">("");
   const [liters, setLiters] = useState("");
   const [dt, setDt] = useState(nowLocalInput());
@@ -31,6 +33,7 @@ function Tanque() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!session) return;
     if (!tank) { toast.error("Selecione o tanque."); return; }
     if (Number(liters) < 0 || liters === "") { toast.error("Informe a quantidade de litros."); return; }
     setBusy(true);
@@ -75,7 +78,7 @@ function Tanque() {
         <Field label="Fotos">
           <PhotoPicker files={files} onChange={setFiles} />
         </Field>
-        <Button type="submit" disabled={busy} className="touch-target h-14 w-full text-lg font-bold">
+        <Button type="submit" disabled={busy || !session} className="touch-target h-14 w-full text-lg font-bold">
           {busy ? "Salvando…" : "Atualizar Tanque"}
         </Button>
       </form>

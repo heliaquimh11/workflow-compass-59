@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Field, inputCls } from "@/components/Field";
 import { PhotoPicker } from "@/components/PhotoPicker";
+import { useSession } from "@/lib/auth";
 import { localInputToISO, nowLocalInput, uploadPhotos } from "@/lib/fuel";
 
 export const Route = createFileRoute("/_authenticated/pedido")({
@@ -33,6 +34,7 @@ export const Route = createFileRoute("/_authenticated/pedido")({
 });
 
 function Pedido() {
+  const { session } = useSession();
   const [ack, setAck] = useState(false);
   const [current, setCurrent] = useState("");
   const [desired, setDesired] = useState("");
@@ -43,6 +45,7 @@ function Pedido() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!session) return;
     if (Number(desired) <= 0) { toast.error("Quantidade desejada deve ser maior que zero."); return; }
     if (!last) { toast.error("Informe a última entrega de combustível."); return; }
     setBusy(true);
@@ -111,7 +114,7 @@ function Pedido() {
           <Field label="Fotos de verificação">
             <PhotoPicker files={files} onChange={setFiles} />
           </Field>
-          <Button type="submit" disabled={busy} className="touch-target h-14 w-full text-lg font-bold">
+          <Button type="submit" disabled={busy || !session} className="touch-target h-14 w-full text-lg font-bold">
             {busy ? "Enviando…" : "Enviar Pedido"}
           </Button>
         </form>

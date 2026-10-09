@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, TankToggle, inputCls } from "@/components/Field";
 import { PhotoPicker } from "@/components/PhotoPicker";
+import { useSession } from "@/lib/auth";
 import { PLATE_RE, formatPlate, localInputToISO, nowLocalInput, uploadPhotos } from "@/lib/fuel";
 
 export const Route = createFileRoute("/_authenticated/consumo")({
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/_authenticated/consumo")({
 });
 
 function Consumo() {
+  const { session } = useSession();
   const [plate, setPlate] = useState("");
   const [odometer, setOdometer] = useState("");
   const [liters, setLiters] = useState("");
@@ -33,6 +35,7 @@ function Consumo() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!session) return;
     if (!PLATE_RE.test(plate)) { toast.error("Placa inválida. Use o formato ABC1D23."); return; }
     if (!tank) { toast.error("Selecione a origem do tanque."); return; }
     if (Number(liters) <= 0) { toast.error("Litragem deve ser maior que zero."); return; }
@@ -85,7 +88,7 @@ function Consumo() {
         <Field label="Fotos (mínimo 3)">
           <PhotoPicker files={files} onChange={setFiles} min={3} />
         </Field>
-        <Button type="submit" disabled={busy} className="touch-target h-14 w-full text-lg font-bold">
+        <Button type="submit" disabled={busy || !session} className="touch-target h-14 w-full text-lg font-bold">
           {busy ? "Enviando…" : "Registrar Abastecimento"}
         </Button>
       </form>
