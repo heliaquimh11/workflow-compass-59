@@ -1,24 +1,28 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { useSession } from "@/lib/auth";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Controle de Abastecimento | Bidtech" },
+      { name: "description", content: "Sistema de controle de abastecimento de frota e nível de tanques Leste e Norte." },
+      { property: "og:title", content: "Controle de Abastecimento | Bidtech" },
+      { property: "og:description", content: "Registro de consumo, nível de tanques e pedidos de combustível." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
+  const { session, loading } = useSession();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (loading) return;
+    if (!session) navigate({ to: "/login", replace: true });
+    else navigate({ to: window.innerWidth < 1024 ? "/consumo" : "/gestao", replace: true });
+  }, [session, loading, navigate]);
+  return <div className="flex min-h-screen items-center justify-center bg-navy text-navy-foreground">Carregando…</div>;
 }
