@@ -139,6 +139,7 @@
     max-height: 90dvh;
     overflow-y: auto;
     transform: none;
+    translate: none;
     border-radius: 8px 8px 0 0;
     padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
     animation: none;
