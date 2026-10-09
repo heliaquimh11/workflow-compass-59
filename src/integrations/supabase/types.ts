@@ -14,7 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      fuel_logs: {
+        Row: {
+          created_at: string | null
+          fuel_date_time: string
+          id: string
+          license_plate: string
+          liters: number
+          odometer: number
+          photo_urls: string[]
+          tank_location: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          fuel_date_time?: string
+          id?: string
+          license_plate: string
+          liters: number
+          odometer: number
+          photo_urls: string[]
+          tank_location: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          fuel_date_time?: string
+          id?: string
+          license_plate?: string
+          liters?: number
+          odometer?: number
+          photo_urls?: string[]
+          tank_location?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      fuel_requests: {
+        Row: {
+          created_at: string | null
+          current_tank_level: number
+          id: string
+          last_delivery_date_time: string
+          photo_urls: string[] | null
+          request_date_time: string
+          requested_liters: number
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_tank_level: number
+          id?: string
+          last_delivery_date_time: string
+          photo_urls?: string[] | null
+          request_date_time?: string
+          requested_liters: number
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_tank_level?: number
+          id?: string
+          last_delivery_date_time?: string
+          photo_urls?: string[] | null
+          request_date_time?: string
+          requested_liters?: number
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tank_levels: {
+        Row: {
+          created_at: string | null
+          current_liters: number
+          id: string
+          measurement_date_time: string
+          photo_urls: string[] | null
+          tank_name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_liters: number
+          id?: string
+          measurement_date_time?: string
+          photo_urls?: string[] | null
+          tank_name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_liters?: number
+          id?: string
+          measurement_date_time?: string
+          photo_urls?: string[] | null
+          tank_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
