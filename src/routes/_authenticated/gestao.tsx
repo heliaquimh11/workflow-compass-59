@@ -15,6 +15,8 @@ export const Route = createFileRoute("/_authenticated/gestao")({
     meta: [
       { title: "Gestão e Análise de Consumo | Controle de Abastecimento" },
       { name: "description", content: "Dashboard em tempo real dos tanques, busca por placa e exportação para Excel." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { property: "og:title", content: "Gestão e Análise de Consumo" },
       { property: "og:description", content: "Tanques em tempo real, histórico por veículo e relatórios." },
     ],
@@ -27,7 +29,16 @@ type Level = Tables<"tank_levels">;
 type Req = Tables<"fuel_requests">;
 type SortKey = "fuel_date_time" | "license_plate" | "odometer" | "liters" | "tank_location";
 const PAGE = 15;
-const CAPACITY_HINT = 30000;
+
+async function readAll<T>(table: "fuel_logs" | "tank_levels" | "fuel_requests"): Promise<T[]> {
+  const rows: T[] = [];
+  for (let offset = 0; ; offset += 500) {
+    const { data, error } = await supabase.from(table).select("*").order("id").range(offset, offset + 499);
+    if (error) throw error;
+    rows.push(...(data as unknown as T[]));
+    if (data.length < 500) return rows;
+  }
+}
 
 function Gestao() {
   const [logs, setLogs] = useState<Log[]>([]);
@@ -41,14 +52,10 @@ function Gestao() {
   const [gallery, setGallery] = useState<{ title: string; urls: string[] } | null>(null);
 
   const load = async () => {
-    const [a, b, c] = await Promise.all([
-      supabase.from("fuel_logs").select("*").order("fuel_date_time", { ascending: false }),
-      supabase.from("tank_levels").select("*").order("measurement_date_time", { ascending: false }),
-      supabase.from("fuel_requests").select("*").order("request_date_time", { ascending: false }),
-    ]);
-    if (a.data) setLogs(a.data);
-    if (b.data) setLevels(b.data);
-    if (c.data) setReqs(c.data);
+    try {
+      const [a, b, c] = await Promise.all([readAll<Log>("fuel_logs"), readAll<Level>("tank_levels"), readAll<Req>("fuel_requests")]);
+      setLogs(a); setLevels(b); setReqs(c);
+    } catch { toast.error("Não foi possível carregar os registros."); }
   };
 
   useEffect(() => {
@@ -57,6 +64,7 @@ function Gestao() {
       .channel("gestao-realtime")
       .on("postgres_changes", { event: "*", schema: "public", table: "tank_levels" }, () => load())
       .on("postgres_changes", { event: "*", schema: "public", table: "fuel_logs" }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "fuel_requests" }, () => load())
       .subscribe();
     return () => {
       supabase.removeChannel(ch);
@@ -89,14 +97,16 @@ function Gestao() {
 
   const totalLiters = filtered.reduce((s, l) => s + Number(l.liters), 0);
   const lastOdo = filtered.length
-    ? [...filtered].sort((a, b) => +new Date(b.fuel_date_time) - +new Date(a.fuel_date_time))[0].odometer
+    ? [...filtered].sort((a, b) => +new Date(b.fuel_date_time) - +new Date(a.fuel_date_time))[0]?.odometer
     : null;
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE));
   const rows = filtered.slice(page * PAGE, page * PAGE + PAGE);
 
   const toggleSort = (k: SortKey) => setSort((s) => ({ k, asc: s.k === k ? !s.asc : true }));
 
-  const exportXlsx = () => {
+  const exportXlsx = async () => {
+    try {
+    const [logs, levels, reqs] = await Promise.all([readAll<Log>("fuel_logs"), readAll<Level>("tank_levels"), readAll<Req>("fuel_requests")]);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(logs.map((l) => ({
       ID: l.id, "Criado em": fmtDateTime(l.created_at), "Usuário": l.user_id, Placa: l.license_plate,
@@ -114,6 +124,7 @@ function Gestao() {
     }))), "Pedidos");
     XLSX.writeFile(wb, `abastecimento_${new Date().toISOString().slice(0, 10)}.xlsx`);
     toast.success("Relatório exportado!");
+    } catch { toast.error("Não foi possível exportar os registros."); }
   };
 
   const updateStatus = async (id: string, status: string) => {
@@ -145,7 +156,7 @@ function Gestao() {
       <div className="grid gap-4 md:grid-cols-2">
         {(["Leste", "Norte"] as const).map((t) => {
           const l = latest(t);
-          const pct = l ? Math.min(100, (Number(l.current_liters) / CAPACITY_HINT) * 100) : 0;
+          
           return (
             <div key={t} className="relative overflow-hidden rounded-2xl bg-navy p-6 text-navy-foreground shadow-lg">
               <div className="flex items-start justify-between">
@@ -160,9 +171,7 @@ function Gestao() {
                 </div>
                 <Droplets className="h-10 w-10 text-primary" />
               </div>
-              <div className="mt-5 h-3 overflow-hidden rounded-full bg-navy-2">
-                <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
-              </div>
+
             </div>
           );
         })}
