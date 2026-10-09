@@ -1,5 +1,6 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Camera, ImagePlus, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function PhotoPicker({
   files,
@@ -10,16 +11,29 @@ export function PhotoPicker({
   onChange: (f: File[]) => void;
   min?: number;
 }) {
+  const [dragging, setDragging] = useState(false);
+  const [error, setError] = useState("");
+  const depth = useRef(0);
   const previews = useMemo(() => files.map((f) => URL.createObjectURL(f)), [files]);
   useEffect(() => () => previews.forEach((p) => URL.revokeObjectURL(p)), [previews]);
 
   const add = (list: FileList | null) => {
     if (!list) return;
-    onChange([...files, ...Array.from(list)]);
+    const incoming = Array.from(list);
+    const images = incoming.filter((file) => file.type.startsWith("image/") || /\.(jpe?g|png|webp|gif|bmp|avif)$/i.test(file.name));
+    setError(images.length !== incoming.length ? "Somente arquivos de imagem são aceitos." : "");
+    onChange([...files, ...images]);
   };
 
   return (
-    <div className="space-y-3">
+    <div
+      aria-label="Área de envio de fotos"
+      className={`space-y-3 rounded-lg border-2 border-dashed p-3 transition-colors ${dragging ? "border-primary bg-primary/10" : "border-border"}`}
+      onDragEnter={(e) => { e.preventDefault(); depth.current++; setDragging(true); }}
+      onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; }}
+      onDragLeave={(e) => { e.preventDefault(); depth.current = Math.max(0, depth.current - 1); if (depth.current === 0) setDragging(false); }}
+      onDrop={(e) => { e.preventDefault(); depth.current = 0; setDragging(false); add(e.dataTransfer.files); }}
+    >
       <div className="grid grid-cols-2 gap-3">
         <label className="touch-target flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-navy px-4 py-3 font-semibold text-navy-foreground active:opacity-80">
           <Camera className="h-5 w-5" /> Câmera
@@ -30,19 +44,23 @@ export function PhotoPicker({
           <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => { add(e.target.files); e.target.value = ""; }} />
         </label>
       </div>
+      {dragging && <p className="text-center text-sm font-semibold text-cyan-deep">Solte as fotos aqui</p>}
+      {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       {previews.length > 0 && (
         <div className="grid grid-cols-3 gap-2">
           {previews.map((p, i) => (
             <div key={p} className="relative aspect-square overflow-hidden rounded-md border">
               <img src={p} alt={`Foto ${i + 1}`} className="h-full w-full object-cover" />
-              <button
+              <Button
                 type="button"
+                size="icon"
+                variant="destructive"
                 aria-label="Remover foto"
                 onClick={() => onChange(files.filter((_, j) => j !== i))}
                 className="absolute right-1 top-1 flex h-8 w-8 items-center justify-center rounded-full bg-destructive text-destructive-foreground"
               >
                 <X className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
           ))}
         </div>
