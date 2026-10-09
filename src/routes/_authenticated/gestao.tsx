@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { fmtDateTime, fmtNum } from "@/lib/fuel";
 import { useSession } from "@/lib/auth";
+import { LegacyImport } from "@/components/LegacyImport";
+import { createFuelReport } from "@/lib/excel-report";
 
 export const Route = createFileRoute("/_authenticated/gestao")({
   head: () => ({
@@ -115,21 +117,7 @@ function Gestao() {
     if (!session) return;
     try {
     const [logs, levels, reqs] = await Promise.all([readAll<Log>("fuel_logs"), readAll<Level>("tank_levels"), readAll<Req>("fuel_requests")]);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(logs.map((l) => ({
-      ID: l.id, "Criado em": fmtDateTime(l.created_at), "Usuário": l.user_id, Placa: l.license_plate,
-      "Hodômetro": Number(l.odometer), Litros: Number(l.liters), "Data/Hora": fmtDateTime(l.fuel_date_time),
-      Tanque: l.tank_location, Fotos: (l.photo_urls ?? []).join(" | "),
-    }))), "Abastecimentos");
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(levels.map((l) => ({
-      ID: l.id, "Criado em": fmtDateTime(l.created_at), "Usuário": l.user_id, Tanque: l.tank_name,
-      Litros: Number(l.current_liters), "Data/Hora": fmtDateTime(l.measurement_date_time), Fotos: (l.photo_urls ?? []).join(" | "),
-    }))), "Níveis Tanques");
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(reqs.map((r) => ({
-      ID: r.id, "Criado em": fmtDateTime(r.created_at), "Usuário": r.user_id, "Nível atual": Number(r.current_tank_level),
-      "Litros solicitados": Number(r.requested_liters), "Data/Hora pedido": fmtDateTime(r.request_date_time),
-      "Última entrega": fmtDateTime(r.last_delivery_date_time), Status: r.status, Fotos: (r.photo_urls ?? []).join(" | "),
-    }))), "Pedidos");
+    const wb = createFuelReport(logs, levels, reqs);
     XLSX.writeFile(wb, `abastecimento_${new Date().toISOString().slice(0, 10)}.xlsx`);
     toast.success("Relatório exportado!");
     } catch { toast.error("Não foi possível exportar os registros."); }
@@ -173,6 +161,7 @@ function Gestao() {
         <Button asChild variant="outline" className="touch-target gap-2">
           <Link to="/pedido"><Truck className="h-5 w-5" /> Pedir Combustível</Link>
         </Button>
+        <LegacyImport disabled={!session} onImported={() => { void load(); }} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -238,9 +227,9 @@ function Gestao() {
                   <td className="px-4 py-3 font-semibold">{fmtNum(l.liters)}</td>
                   <td className="px-4 py-3">{l.tank_location}</td>
                   <td className="px-4 py-3">
-                    <Button variant="outline" size="sm" onClick={() => setGallery({ title: `${l.license_plate} · ${fmtDateTime(l.fuel_date_time)}`, urls: l.photo_urls })} className="gap-1">
+                    {l.photo_urls.length > 0 ? <Button variant="outline" size="sm" onClick={() => setGallery({ title: `${l.license_plate} · ${fmtDateTime(l.fuel_date_time)}`, urls: l.photo_urls })} className="gap-1">
                       <Images className="h-4 w-4" /> {l.photo_urls.length}
-                    </Button>
+                    </Button> : <span className="text-xs text-muted-foreground">Legado · Sem fotos</span>}
                   </td>
                 </tr>
               ))}
