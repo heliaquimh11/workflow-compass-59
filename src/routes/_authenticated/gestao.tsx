@@ -30,6 +30,15 @@ type Req = Tables<"fuel_requests">;
 type SortKey = "fuel_date_time" | "license_plate" | "odometer" | "liters" | "tank_location";
 const PAGE = 15;
 
+async function readAll<T>(table: "fuel_logs" | "tank_levels" | "fuel_requests"): Promise<T[]> {
+  const rows: T[] = [];
+  for (let offset = 0; ; offset += 500) {
+    const { data, error } = await supabase.from(table).select("*").order("id").range(offset, offset + 499);
+    if (error) throw error;
+    rows.push(...(data as unknown as T[]));
+    if (data.length < 500) return rows;
+  }
+}
 
 function Gestao() {
   const [logs, setLogs] = useState<Log[]>([]);
@@ -43,14 +52,10 @@ function Gestao() {
   const [gallery, setGallery] = useState<{ title: string; urls: string[] } | null>(null);
 
   const load = async () => {
-    const [a, b, c] = await Promise.all([
-      supabase.from("fuel_logs").select("*").order("fuel_date_time", { ascending: false }),
-      supabase.from("tank_levels").select("*").order("measurement_date_time", { ascending: false }),
-      supabase.from("fuel_requests").select("*").order("request_date_time", { ascending: false }),
-    ]);
-    if (a.data) setLogs(a.data);
-    if (b.data) setLevels(b.data);
-    if (c.data) setReqs(c.data);
+    try {
+      const [a, b, c] = await Promise.all([readAll<Log>("fuel_logs"), readAll<Level>("tank_levels"), readAll<Req>("fuel_requests")]);
+      setLogs(a); setLevels(b); setReqs(c);
+    } catch { toast.error("Não foi possível carregar os registros."); }
   };
 
   useEffect(() => {
@@ -59,6 +64,7 @@ function Gestao() {
       .channel("gestao-realtime")
       .on("postgres_changes", { event: "*", schema: "public", table: "tank_levels" }, () => load())
       .on("postgres_changes", { event: "*", schema: "public", table: "fuel_logs" }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "fuel_requests" }, () => load())
       .subscribe();
     return () => {
       supabase.removeChannel(ch);
@@ -98,7 +104,9 @@ function Gestao() {
 
   const toggleSort = (k: SortKey) => setSort((s) => ({ k, asc: s.k === k ? !s.asc : true }));
 
-  const exportXlsx = () => {
+  const exportXlsx = async () => {
+    try {
+    const [logs, levels, reqs] = await Promise.all([readAll<Log>("fuel_logs"), readAll<Level>("tank_levels"), readAll<Req>("fuel_requests")]);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(logs.map((l) => ({
       ID: l.id, "Criado em": fmtDateTime(l.created_at), "Usuário": l.user_id, Placa: l.license_plate,
@@ -116,6 +124,7 @@ function Gestao() {
     }))), "Pedidos");
     XLSX.writeFile(wb, `abastecimento_${new Date().toISOString().slice(0, 10)}.xlsx`);
     toast.success("Relatório exportado!");
+    } catch { toast.error("Não foi possível exportar os registros."); }
   };
 
   const updateStatus = async (id: string, status: string) => {

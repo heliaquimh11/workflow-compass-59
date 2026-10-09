@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { BarChart3, Droplets, Fuel, LogOut, Menu, Truck, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,6 +6,10 @@ import { useSession } from "@/lib/auth";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
+  beforeLoad: async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) throw redirect({ to: "/login" });
+  },
   component: Layout,
 });
 
@@ -19,10 +23,6 @@ function Layout() {
   const { session, loading } = useSession();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    if (!loading && !session) navigate({ to: "/login", replace: true });
-  }, [loading, session, navigate]);
 
   if (loading || !session) {
     return <div className="flex min-h-screen items-center justify-center bg-navy text-navy-foreground">Carregando…</div>;
