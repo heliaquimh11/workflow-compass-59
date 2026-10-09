@@ -19,11 +19,14 @@ export type Database = {
           created_at: string | null
           fuel_date_time: string
           id: string
+          import_key: string | null
+          is_legacy: boolean
           is_test: boolean
           license_plate: string
           liters: number
           odometer: number
           photo_urls: string[]
+          source_file: string | null
           tank_location: string
           user_id: string
         }
@@ -31,11 +34,14 @@ export type Database = {
           created_at?: string | null
           fuel_date_time?: string
           id?: string
+          import_key?: string | null
+          is_legacy?: boolean
           is_test?: boolean
           license_plate: string
           liters: number
           odometer: number
           photo_urls: string[]
+          source_file?: string | null
           tank_location: string
           user_id: string
         }
@@ -43,11 +49,14 @@ export type Database = {
           created_at?: string | null
           fuel_date_time?: string
           id?: string
+          import_key?: string | null
+          is_legacy?: boolean
           is_test?: boolean
           license_plate?: string
           liters?: number
           odometer?: number
           photo_urls?: string[]
+          source_file?: string | null
           tank_location?: string
           user_id?: string
         }
@@ -130,7 +139,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      import_legacy_fuel_logs: {
+        Args: { filename: string; records: Json }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
