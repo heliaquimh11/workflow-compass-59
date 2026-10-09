@@ -1,0 +1,10 @@
+ALTER TABLE public.fuel_logs ADD COLUMN is_test boolean NOT NULL DEFAULT COALESCE((auth.jwt()->>'is_anonymous')::boolean, false);
+ALTER TABLE public.tank_levels ADD COLUMN is_test boolean NOT NULL DEFAULT COALESCE((auth.jwt()->>'is_anonymous')::boolean, false);
+ALTER TABLE public.fuel_requests ADD COLUMN is_test boolean NOT NULL DEFAULT COALESCE((auth.jwt()->>'is_anonymous')::boolean, false);
+CREATE POLICY "isolate test logs" ON public.fuel_logs AS RESTRICTIVE FOR ALL TO authenticated USING (is_test = COALESCE((auth.jwt()->>'is_anonymous')::boolean, false) AND (NOT is_test OR user_id = auth.uid())) WITH CHECK (is_test = COALESCE((auth.jwt()->>'is_anonymous')::boolean, false) AND user_id = auth.uid());
+CREATE POLICY "isolate test tanks" ON public.tank_levels AS RESTRICTIVE FOR ALL TO authenticated USING (is_test = COALESCE((auth.jwt()->>'is_anonymous')::boolean, false) AND (NOT is_test OR user_id = auth.uid())) WITH CHECK (is_test = COALESCE((auth.jwt()->>'is_anonymous')::boolean, false) AND user_id = auth.uid());
+CREATE POLICY "isolate test requests" ON public.fuel_requests AS RESTRICTIVE FOR ALL TO authenticated USING (is_test = COALESCE((auth.jwt()->>'is_anonymous')::boolean, false) AND (NOT is_test OR user_id = auth.uid())) WITH CHECK (is_test = COALESCE((auth.jwt()->>'is_anonymous')::boolean, false) AND (NOT is_test OR user_id = auth.uid()));
+CREATE POLICY "isolate guest photos" ON storage.objects AS RESTRICTIVE FOR ALL TO authenticated USING (bucket_id <> 'fuel-attachments' OR NOT COALESCE((auth.jwt()->>'is_anonymous')::boolean, false) OR (storage.foldername(name))[2] = auth.uid()::text) WITH CHECK (bucket_id <> 'fuel-attachments' OR (storage.foldername(name))[2] = auth.uid()::text);
+GRANT SELECT, INSERT ON public.fuel_logs, public.tank_levels, public.fuel_requests TO authenticated;
+GRANT UPDATE (status) ON public.fuel_requests TO authenticated;
+GRANT ALL ON public.fuel_logs, public.tank_levels, public.fuel_requests TO service_role;

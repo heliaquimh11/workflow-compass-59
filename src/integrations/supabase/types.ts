@@ -19,6 +19,7 @@ export type Database = {
           created_at: string | null
           fuel_date_time: string
           id: string
+          is_test: boolean
           license_plate: string
           liters: number
           odometer: number
@@ -30,6 +31,7 @@ export type Database = {
           created_at?: string | null
           fuel_date_time?: string
           id?: string
+          is_test?: boolean
           license_plate: string
           liters: number
           odometer: number
@@ -41,6 +43,7 @@ export type Database = {
           created_at?: string | null
           fuel_date_time?: string
           id?: string
+          is_test?: boolean
           license_plate?: string
           liters?: number
           odometer?: number
@@ -55,6 +58,7 @@ export type Database = {
           created_at: string | null
           current_tank_level: number
           id: string
+          is_test: boolean
           last_delivery_date_time: string
           photo_urls: string[] | null
           request_date_time: string
@@ -66,6 +70,7 @@ export type Database = {
           created_at?: string | null
           current_tank_level: number
           id?: string
+          is_test?: boolean
           last_delivery_date_time: string
           photo_urls?: string[] | null
           request_date_time?: string
@@ -77,6 +82,7 @@ export type Database = {
           created_at?: string | null
           current_tank_level?: number
           id?: string
+          is_test?: boolean
           last_delivery_date_time?: string
           photo_urls?: string[] | null
           request_date_time?: string
@@ -91,6 +97,7 @@ export type Database = {
           created_at: string | null
           current_liters: number
           id: string
+          is_test: boolean
           measurement_date_time: string
           photo_urls: string[] | null
           tank_name: string
@@ -100,6 +107,7 @@ export type Database = {
           created_at?: string | null
           current_liters: number
           id?: string
+          is_test?: boolean
           measurement_date_time?: string
           photo_urls?: string[] | null
           tank_name: string
@@ -109,6 +117,7 @@ export type Database = {
           created_at?: string | null
           current_liters?: number
           id?: string
+          is_test?: boolean
           measurement_date_time?: string
           photo_urls?: string[] | null
           tank_name?: string

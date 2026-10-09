@@ -16,11 +16,20 @@ const opTabs = [
 ] as const;
 
 function Layout() {
-  const { session, loading } = useSession();
+  const { session, loading, error, retry } = useSession();
   const [open, setOpen] = useState(false);
 
   if (loading) {
     return <div className="flex min-h-screen items-center justify-center bg-navy text-navy-foreground">Carregando…</div>;
+  }
+
+  if (!session) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-4 text-center">
+        <p role="alert">{error ?? "Preparando acesso de teste…"}</p>
+        <Button onClick={retry}>Tentar novamente</Button>
+      </div>
+    );
   }
 
   return (
@@ -65,9 +74,9 @@ function Layout() {
           </div>
         )}
       </header>
-      {!session && (
+      {session.user.is_anonymous && (
         <div role="status" className="border-b bg-muted px-4 py-3 text-center text-sm text-muted-foreground">
-          Acesso temporário sem login. Registros e fotos permanecem protegidos; consulta, envio e exportação estão indisponíveis.
+          Ambiente de teste · Registros separados dos dados reais
         </div>
       )}
       <main>
