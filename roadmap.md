@@ -1,4 +1,7 @@
 # Controle de Abastecimento
+- [ ] Ampliar análise automática de colunas e conversão de tanques na importação histórica.
+- [ ] Aceitar Ipiranga e Itaquera no banco e nos formulários, preservando Leste/Norte.
+- [ ] Exibir consumo total, média por veículo, volumes e filtro por base em tempo real; validar importação e indicadores.
 - [x] Adequar navegação, alvos de 52px e aviso inferior ao novo documento móvel.
 - [x] Acrescentar CSV à importação legada e validar gravação.
 - [x] Adicionar arrastar e soltar imagens em todos os formulários.
