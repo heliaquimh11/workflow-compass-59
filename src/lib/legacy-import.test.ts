@@ -6,7 +6,9 @@ const hash = "a".repeat(64);
 function fixture(rows: unknown[][]) {
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet([["Placa", "Hodômetro", "Litros", "Data/Hora", "Tanque"], ...rows]), "Histórico");
-  return readLegacySheets(XLSX.write(workbook, { type: "array", bookType: "xlsx" }))[0];
+  const sheet = readLegacySheets(XLSX.write(workbook, { type: "array", bookType: "xlsx" }))[0];
+  if (!sheet) throw new Error("Missing fixture sheet");
+  return sheet;
 }
 describe("Legacy ingestion", () => {
   it("maps columns and imports old plates with Brazilian values, without photos", () => {
@@ -20,8 +22,8 @@ describe("Legacy ingestion", () => {
     const sheet = fixture([["X", -1, 0, "31/02/2026", "Sul"]]);
     const result = validateLegacy(sheet, suggestColumns(sheet.headers), hash);
     expect(result.records).toHaveLength(0);
-    expect(result.issues[0].message).toContain("data inválida");
-    expect(result.issues[0].row).toBe(2);
+    expect(result.issues[0]?.message).toContain("data inválida");
+    expect(result.issues[0]?.row).toBe(2);
   });
   it("preserves source row positions and ignores blank rows", () => {
     const sheet = fixture([["ABC1D23", 0, 10, 45939, "Norte"], [], ["DEF1234", 30, 20, "2026-10-09T12:00:00Z", "Leste"]]);

@@ -15,6 +15,8 @@ describe("Clean Excel export", () => {
       expect(JSON.stringify(sheet)).not.toMatch(/https?:\/\/|Fotos|photo_urls/);
       for (const [key, cell] of Object.entries(sheet)) if (!key.startsWith("!")) expect(cell).not.toHaveProperty("l");
     }
-    expect(XLSX.utils.sheet_to_json(workbook.Sheets.Abastecimentos)[0]).toMatchObject({ Litros: 20, "Hodômetro": 100 });
+    const sheet = workbook.Sheets["Abastecimentos"];
+    if (!sheet) throw new Error("Missing report sheet");
+    expect(XLSX.utils.sheet_to_json(sheet)[0]).toMatchObject({ Litros: 20, "Hodômetro": 100 });
   });
 });

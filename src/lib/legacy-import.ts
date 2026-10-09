@@ -17,7 +17,9 @@ const normalize = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, 
 export function readLegacySheets(buffer: ArrayBuffer): LegacySheet[] {
   const workbook = XLSX.read(buffer, { type: "array", cellDates: true });
   return workbook.SheetNames.map((name, index) => {
-    const matrix = XLSX.utils.sheet_to_json<unknown[]>(workbook.Sheets[name], { header: 1, defval: "", blankrows: true });
+    const worksheet = workbook.Sheets[name];
+    if (!worksheet) return { name, index, headers: [], rows: [] };
+    const matrix = XLSX.utils.sheet_to_json<unknown[]>(worksheet, { header: 1, defval: "", blankrows: true });
     const headerIndex = matrix.findIndex((row) => row.some((cell) => String(cell).trim()));
     const headers = (matrix[headerIndex] ?? []).map((cell, i) => String(cell).trim() || `Coluna ${i + 1}`);
     return { name, index, headers, rows: matrix.slice(headerIndex + 1).map((values, i) => ({ row: headerIndex + i + 2, values })).filter(({ values }) => values.some((v) => String(v).trim())) };

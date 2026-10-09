@@ -47,7 +47,7 @@ export function LegacyImport({ disabled, onImported }: { disabled: boolean; onIm
       const { data, error } = await supabase.rpc("import_legacy_fuel_logs", { records: validation.records, filename });
       if (error) throw error;
       if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("Resposta de importação inválida.");
-      const counts = { imported: Number(data.imported), duplicates: Number(data.duplicates) };
+      const counts = { imported: Number(data["imported"]), duplicates: Number(data["duplicates"]) };
       setResult(counts); onImported();
       toast.success(`${counts.imported} abastecimentos importados.`);
     } catch (err) { setError(err instanceof Error ? err.message : String((err as { message?: string })?.message ?? "Não foi possível importar.")); }
@@ -71,7 +71,7 @@ export function LegacyImport({ disabled, onImported }: { disabled: boolean; onIm
         </div>
         {sheet && <>
           <label className="grid gap-1 text-sm font-semibold">Aba
-            <select aria-label="Aba da planilha" disabled={busy} className="h-12 rounded-md border bg-card px-3" value={selected} onChange={(e) => { const index = Number(e.target.value); setSelected(index); setColumns(suggestColumns(sheets[index].headers)); setResult(null); setError(""); }}>
+            <select aria-label="Aba da planilha" disabled={busy} className="h-12 rounded-md border bg-card px-3" value={selected} onChange={(e) => { const index = Number(e.target.value); const next = sheets[index]; if (!next) return; setSelected(index); setColumns(suggestColumns(next.headers)); setResult(null); setError(""); }}>
               {sheets.map((s, i) => <option key={s.index} value={i}>{s.name} ({s.rows.length} registros)</option>)}
             </select>
           </label>
