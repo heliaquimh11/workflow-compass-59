@@ -1,4 +1,6 @@
 # Controle de Abastecimento
+- [x] Adequar navegação, alvos de 52px e aviso inferior ao novo documento móvel.
+- [x] Acrescentar CSV à importação legada e validar gravação.
 - [x] Adicionar arrastar e soltar imagens em todos os formulários.
 - [x] Exportar Excel sem links ou URLs de fotos.
 - [x] Importar planilhas .xlsx legadas sem fotos, com validação e gravação no Cloud.

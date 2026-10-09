@@ -112,5 +112,36 @@
 }
 
 @utility touch-target {
-  min-height: 48px;
+  min-height: 52px;
+}
+
+@media (max-width: 1023px) {
+  main button, main input:not([type="file"]), main select,
+  header button, [role="dialog"] button, [role="dialog"] select,
+  [role="alertdialog"] button {
+    min-height: 52px;
+  }
+  .photo-remove, header button, [role="dialog"] button[aria-label] {
+    min-width: 52px;
+  }
+  .field-navigation {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  main {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .mobile-critical-sheet {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    max-height: 90dvh;
+    overflow-y: auto;
+    transform: none;
+    translate: none !important;
+    border-radius: 8px 8px 0 0;
+    padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+    animation: none;
+  }
 }

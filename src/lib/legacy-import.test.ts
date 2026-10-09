@@ -11,6 +11,15 @@ function fixture(rows: unknown[][]) {
   return sheet;
 }
 describe("Legacy ingestion", () => {
+  it("reads semicolon CSV without altering Brazilian dates or decimal values", () => {
+    const csv = 'Placa;Hodômetro;Litros;Data/Hora;Tanque\nCSV-1234;"12.345,5";"42,5";09/10/2026 09:30;Norte';
+    const bytes = new TextEncoder().encode(csv);
+    const sheet = readLegacySheets(bytes.buffer, "antigo.csv")[0];
+    if (!sheet) throw new Error("Missing CSV sheet");
+    const result = validateLegacy(sheet, suggestColumns(sheet.headers), hash);
+    expect(result.issues).toEqual([]);
+    expect(result.records[0]).toMatchObject({ license_plate: "CSV1234", liters: 42.5, odometer: 12345.5, tank_location: "Norte" });
+  });
   it("maps columns and imports old plates with Brazilian values, without photos", () => {
     const sheet = fixture([["ABC-1234", "12.345,5", "42,5", "09/10/2026 09:30", "Tanque Leste"]]);
     const { records, issues } = validateLegacy(sheet, suggestColumns(sheet.headers), hash);

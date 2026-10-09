@@ -57,7 +57,7 @@ export function PhotoPicker({
                 variant="destructive"
                 aria-label="Remover foto"
                 onClick={() => onChange(files.filter((_, j) => j !== i))}
-                className="absolute right-1 top-1 flex h-8 w-8 items-center justify-center rounded-full bg-destructive text-destructive-foreground"
+                className="photo-remove absolute right-1 top-1 flex h-8 w-8 items-center justify-center rounded-full bg-destructive text-destructive-foreground"
               >
                 <X className="h-4 w-4" />
               </Button>

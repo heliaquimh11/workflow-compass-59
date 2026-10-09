@@ -14,8 +14,10 @@ export type LegacyIssue = { row: number; message: string };
 export type LegacySheet = { name: string; index: number; headers: string[]; rows: { row: number; values: unknown[] }[] };
 const normalize = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
-export function readLegacySheets(buffer: ArrayBuffer): LegacySheet[] {
-  const workbook = XLSX.read(buffer, { type: "array", cellDates: true });
+export function readLegacySheets(buffer: ArrayBuffer, filename = "planilha.xlsx"): LegacySheet[] {
+  const workbook = /\.csv$/i.test(filename)
+    ? XLSX.read(new TextDecoder("utf-8").decode(buffer), { type: "string", raw: true })
+    : XLSX.read(buffer, { type: "array", cellDates: true });
   return workbook.SheetNames.map((name, index) => {
     const worksheet = workbook.Sheets[name];
     if (!worksheet) return { name, index, headers: [], rows: [] };
