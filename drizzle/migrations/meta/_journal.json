@@ -15,6 +15,13 @@
       "when": 1791548939704,
       "tag": "0001_fuel_validation",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791549576664,
+      "tag": "0002_isolated_login_free_testing",
+      "breakpoints": true
     }
   ]
 }
