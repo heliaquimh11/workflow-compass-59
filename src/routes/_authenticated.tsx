@@ -1,15 +1,11 @@
-import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { BarChart3, Droplets, Fuel, LogOut, Menu, Truck, X } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { useState } from "react";
+import { BarChart3, Droplets, Fuel, Menu, Truck, X } from "lucide-react";
 import { useSession } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/login" });
-  },
   component: Layout,
 });
 
@@ -21,17 +17,11 @@ const opTabs = [
 
 function Layout() {
   const { session, loading } = useSession();
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
-  if (loading || !session) {
+  if (loading) {
     return <div className="flex min-h-screen items-center justify-center bg-navy text-navy-foreground">Carregando…</div>;
   }
-
-  const logout = async () => {
-    await supabase.auth.signOut();
-    navigate({ to: "/login" });
-  };
 
   return (
     <div className="min-h-screen bg-background pb-20 lg:pb-0">
@@ -54,13 +44,10 @@ function Layout() {
                 <t.icon className="h-4 w-4" /> {t.label}
               </Link>
             ))}
-            <button onClick={logout} className="touch-target ml-2 flex items-center gap-2 rounded-md px-4 font-semibold hover:bg-navy-2">
-              <LogOut className="h-4 w-4" /> Sair
-            </button>
           </nav>
-          <button aria-label="Menu" onClick={() => setOpen(!open)} className="flex h-12 w-12 items-center justify-center rounded-md lg:hidden">
+          <Button variant="ghost" aria-label="Menu" onClick={() => setOpen(!open)} className="flex h-12 w-12 items-center justify-center rounded-md lg:hidden">
             {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+          </Button>
         </div>
         {open && (
           <div className="border-t border-navy-2 bg-navy-2 px-4 py-2 lg:hidden">
@@ -75,12 +62,14 @@ function Layout() {
                 <t.icon className="h-5 w-5" /> {t.label}
               </Link>
             ))}
-            <button onClick={logout} className="touch-target flex w-full items-center gap-3 px-3 text-lg font-semibold">
-              <LogOut className="h-5 w-5" /> Sair
-            </button>
           </div>
         )}
       </header>
+      {!session && (
+        <div role="status" className="border-b bg-muted px-4 py-3 text-center text-sm text-muted-foreground">
+          Acesso temporário sem login. Registros e fotos permanecem protegidos; consulta, envio e exportação estão indisponíveis.
+        </div>
+      )}
       <main>
         <Outlet />
       </main>
