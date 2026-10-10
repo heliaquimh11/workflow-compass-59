@@ -1,4 +1,10 @@
 # Controle de Abastecimento
+- [ ] Apresentar plano de profissionalização preservando dados, histórico e funcionalidades existentes.
+- [ ] Implantar acesso permanente, ADM/colaborador, conta inicial verificada e gerenciamento administrativo seguro.
+- [ ] Remover última entrega da tela de pedido sem apagar histórico.
+- [ ] Acrescentar turno, observação, idempotência e auditoria às medições; homepage e sincronização confiável.
+- [ ] Criar Exportar dados exclusivo ADM, por tabela e tudo junto, sem credenciais privadas.
+- [ ] Documentar banco, consulta, persistência e backups efetivamente disponíveis; validar permissões e uso simultâneo.
 - [ ] Ampliar análise automática de colunas e conversão de tanques na importação histórica.
 - [ ] Aceitar Ipiranga e Itaquera no banco e nos formulários, preservando Leste/Norte.
 - [ ] Exibir consumo total, média por veículo, volumes e filtro por base em tempo real; validar importação e indicadores.
