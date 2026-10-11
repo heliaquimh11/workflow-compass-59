@@ -7,6 +7,7 @@
 - Há atualização em tempo real na Gestão e exportação operacional Excel sem fotos. Ainda não há perfis ADM/colaborador, gerenciamento de usuários ou auditoria.
 - Ipiranga e Itaquera já são aceitos pelo banco; os ajustes anteriores de importação e indicadores ainda estão pendentes.
 - O documento recebido termina com uma frase incompleta na seção 10. Este plano cobre os requisitos completos recebidos e preserva o estilo atual.
+- Contagem antes da implementação, consultada em 11/10/2026 UTC: **667 abastecimentos, 3 pedidos e 7 medições (677 registros, todos marcados como teste); 38 contas, sendo 37 anônimas e 1 não anônima**. Nenhuma dessas contas será presumida administradora. Recontar no início e no relatório final, pois o sistema pode receber registros nesse intervalo.
 
 ## 1. Acesso permanente e perfis
 - Substituir a entrada automática de teste por entrada segura com contas individuais e proteção das páginas operacionais: auxiliares entram com usuário curto e senha; administradores, com e-mail real e senha. Auxiliares recuperam o acesso por redefinição feita por ADM; administradores também podem usar recuperação por e-mail.
@@ -26,6 +27,9 @@
 - Ao desativar uma conta, bloquear imediatamente novas operações no servidor e no banco, mesmo com um token anterior. Revogar as sessões e sinalizar a desativação à tela conectada; verificar o tempo observado de saída, sem prometer entrega instantânea quando o aparelho estiver sem conexão.
 - Aplicar bloqueio temporário de **5 minutos após 5 tentativas erradas**, controlado pelo servidor, conforme autorizado. O Lovable Cloud não possui esse bloqueio como mecanismo padrão; a solução própria terá contagem persistente e controle concorrente, sem armazenar senhas. Documentar que tentativas maliciosas podem bloquear temporariamente o titular e que isso não substitui proteção contra ataques em grande escala.
 - Colaboradores ativos consultam somente os próprios registros; administradores ativos consultam todos. Visitantes e sessões anônimas de teste não terão acesso operacional. Aplicar essa regra às consultas, anexos, importação, exportação e atualização em tempo real, preservando os dados antigos sem torná-los públicos.
+- Desativar **login anônimo e cadastro público** nas configurações do serviço de autenticação, não apenas na tela. Somente o fluxo administrativo autorizado poderá criar contas. Confirmar por leitura das configurações e por tentativas reais de cadastro público e login anônimo; mostrar o estado final no relatório. Preservar as contas anônimas e seus registros existentes, mas impedir sua utilização operacional.
+- Definir senha com **mínimo de 6 caracteres** e verificar as proteções nativas disponíveis. Rejeitar `123456`, `000000`, `senha` e o próprio usuário nas operações de senha controladas pelo servidor; verificar se o serviço oferece essa lista personalizada e se permite impedir desvios por chamadas diretas. Informar claramente qualquer proteção que não possa ser garantida em todos os caminhos. Verificar também proteção contra senhas vazadas, sem apresentá-la como equivalente a uma lista personalizada.
+- Disponibilizar **Alterar minha senha** para qualquer usuário autenticado, solicitando senha atual no fluxo normal e usando o fluxo seguro de recuperação quando aplicável. Se ADM definir a senha inicial ou redefinir uma senha temporária, exigir troca no primeiro acesso quando suportado. Verificar suporte nativo; se for necessário um estado protegido no banco para restringir operações até a troca confirmada, documentar a adaptação e suas limitações. Nunca limpar a exigência apenas por uma resposta do navegador.
 
 ## 2. Pedidos e integridade dos abastecimentos
 - Retirar da tela **Pedir Combustível** o campo de última entrega, mantendo o aviso crítico e os demais campos.
@@ -66,7 +70,7 @@
 
 ## Execução por etapas — implementar somente a Etapa 1
 - **Etapa 1:** login, persistência/renovação de sessão, bloqueio de tentativas, perfis, autorização no banco, Gerenciar Usuários e auditoria. Incluir edição/exclusão administrativa auditada dos registros existentes para comprovar o teste solicitado, mantendo colaboradores sem edição/exclusão.
-- Ao concluir, apresentar as políticas RLS de **todas as tabelas** e o resultado **passou/falhou** de cada teste abaixo, com evidência. Se faltar uma conta, configuração ou condição de teste, marcar **não verificado**, explicar o impedimento e nunca declarar que passou:
+- Ao concluir, apresentar as políticas RLS de **todas as tabelas da aplicação**, as políticas de acesso aos anexos e o inventário das **funções do banco com privilégio elevado**, incluindo finalidade, permissões de execução e verificações de autorização. Mostrar o resultado **passou, falhou ou não verificado** de cada teste abaixo, com evidência. Se faltar uma conta, configuração ou condição de teste, explicar o impedimento e nunca declarar que passou:
   1. Visitante sem login não lê dados da aplicação.
   2. Colaborador não edita nem exclui, inclusive por chamada direta.
   3. Colaborador não acessa Gerenciar Usuários nem suas operações diretas.
@@ -74,6 +78,11 @@
   5. Último ADM ativo não pode ser desativado ou rebaixado, inclusive com ações simultâneas.
   6. Sessão continua aberta após fechar e reabrir o navegador com o mesmo perfil de armazenamento; verificar renovação e não confundir esse teste com comprovação de 30 dias decorridos.
   7. Exclusão por ADM exige motivo e grava cópia completa na auditoria imutável.
+  8. Cadastro público e login anônimo estão desativados no serviço e rejeitam chamadas diretas.
+  9. Política de senha, Alterar minha senha e troca inicial obrigatória funcionam nos caminhos suportados; listar limitações observadas.
+  10. Bloqueio de cinco minutos ocorre após cinco erros e não pode ser contornado pelo caminho direto de autenticação sem que a limitação seja informada.
+- Usar **somente registros novos identificados como teste** nos testes de edição/exclusão; não editar ou excluir os 677 registros existentes nem presumir que registros antigos marcados como teste podem ser descartados.
+- O identificador solicitado “TESTE” não atende à validação atual de placa. Usar “TESTE” como identificação do cenário, com `is_test=true` e placa válida reservada para o ensaio, como `TST1A23`, sem enfraquecer a regra de placas de produção. Documentar no relatório a identificação e os registros criados para o teste. Contas de teste serão criadas pelo fluxo administrativo e identificadas no relatório, sem revelar senhas.
 - **Ponto de parada obrigatório:** aguardar sua validação da Etapa 1 antes de iniciar as próximas.
 - **Etapas posteriores, ainda não autorizadas:** remoção do campo de última entrega, cadastros de veículos/motoristas e validações de lançamentos, medições/homepage, indicadores/importação pendentes, exportação administrativa e documentação/recuperação completa. Preservar essas solicitações no plano, sem implementá-las junto com a Etapa 1.
 
