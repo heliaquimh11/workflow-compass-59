@@ -1,4 +1,5 @@
 # Controle de Abastecimento
+- [ ] Incorporar as condições do documento “Antes de implementar” ao plano antes de alterar o sistema.
 - [ ] Apresentar plano de profissionalização preservando dados, histórico e funcionalidades existentes.
 - [ ] Implantar acesso permanente, ADM/colaborador, conta inicial verificada e gerenciamento administrativo seguro.
 - [ ] Incorporar escolha inicial Auxiliar/Administrador, acesso auxiliar por usuário curto, confirmação ADM, último acesso e auditoria de todas as ações de conta.
