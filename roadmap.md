@@ -1,6 +1,7 @@
 # Controle de Abastecimento
 - [ ] Apresentar plano de profissionalização preservando dados, histórico e funcionalidades existentes.
 - [ ] Implantar acesso permanente, ADM/colaborador, conta inicial verificada e gerenciamento administrativo seguro.
+- [ ] Incorporar escolha inicial Auxiliar/Administrador, acesso auxiliar por usuário curto, confirmação ADM, último acesso e auditoria de todas as ações de conta.
 - [ ] Remover última entrega da tela de pedido sem apagar histórico.
 - [ ] Acrescentar turno, observação, idempotência e auditoria às medições; homepage e sincronização confiável.
 - [ ] Criar Exportar dados exclusivo ADM, por tabela e tudo junto, sem credenciais privadas.
