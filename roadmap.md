@@ -1,8 +1,10 @@
 # Controle de Abastecimento
-- [ ] Incorporar as condições do documento “Antes de implementar” ao plano antes de alterar o sistema.
+- [x] Incorporar as condições do documento “Antes de implementar” ao plano antes de alterar o sistema.
+- [ ] Executar somente Etapa 1 após aprovação; apresentar RLS e testes e aguardar validação antes das demais etapas.
+- [ ] Criar veículos/motoristas e validações no banco em etapa posterior autorizada.
 - [ ] Apresentar plano de profissionalização preservando dados, histórico e funcionalidades existentes.
 - [ ] Implantar acesso permanente, ADM/colaborador, conta inicial verificada e gerenciamento administrativo seguro.
-- [ ] Incorporar escolha inicial Auxiliar/Administrador, acesso auxiliar por usuário curto, confirmação ADM, último acesso e auditoria de todas as ações de conta.
+- [x] Incorporar escolha inicial Auxiliar/Administrador, acesso auxiliar por usuário curto, confirmação ADM, último acesso e auditoria de todas as ações de conta ao plano.
 - [ ] Remover última entrega da tela de pedido sem apagar histórico.
 - [ ] Acrescentar turno, observação, idempotência e auditoria às medições; homepage e sincronização confiável.
 - [ ] Criar Exportar dados exclusivo ADM, por tabela e tudo junto, sem credenciais privadas.
