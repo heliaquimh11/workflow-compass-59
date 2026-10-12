@@ -1,4 +1,5 @@
 # Controle de Abastecimento
+- [ ] Executar Etapa 1 na prioridade do documento aprovado: login e primeiro ADM existente, segurança/RLS/auditoria, usuários, sessão, senhas e verificação do bloqueio; não repetir Limpeza A.
 - [x] Limpeza A autorizada: exportar CSVs, conferir contas/contagens, limpar registros em transação com resumo único, remover fotos via Storage e contas anônimas via Auth; verificar resultado.
 - [ ] Limpeza B bloqueada até novo pedido do usuário após validação da Etapa 1; não executar automaticamente.
 - [x] Incorporar as condições do documento “Antes de implementar” ao plano antes de alterar o sistema.
