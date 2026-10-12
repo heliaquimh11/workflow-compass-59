@@ -1,4 +1,6 @@
 # Controle de Abastecimento
+- [x] Limpeza A autorizada: exportar CSVs, conferir contas/contagens, limpar registros em transação com resumo único, remover fotos via Storage e contas anônimas via Auth; verificar resultado.
+- [ ] Limpeza B bloqueada até novo pedido do usuário após validação da Etapa 1; não executar automaticamente.
 - [x] Incorporar as condições do documento “Antes de implementar” ao plano antes de alterar o sistema.
 - [ ] Executar somente Etapa 1 após aprovação; apresentar RLS e testes e aguardar validação antes das demais etapas.
 - [ ] Criar veículos/motoristas e validações no banco em etapa posterior autorizada.
