@@ -43,6 +43,13 @@
       "when": 1791768415900,
       "tag": "0005_immutable_audit_log_foundation",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791887634470,
+      "tag": "0006_stage_one_accounts_and_permissions",
+      "breakpoints": true
     }
   ]
 }

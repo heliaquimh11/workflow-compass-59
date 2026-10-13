@@ -143,6 +143,57 @@ export type Database = {
         }
         Relationships: []
       }
+      initialization_state: {
+        Row: {
+          consumed_at: string
+          key: string
+          user_id: string
+        }
+        Insert: {
+          consumed_at?: string
+          key: string
+          user_id: string
+        }
+        Update: {
+          consumed_at?: string
+          key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          active: boolean
+          created_at: string
+          display_name: string
+          id: string
+          is_test: boolean
+          last_access_at: string | null
+          must_change_password: boolean
+          username: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          display_name: string
+          id: string
+          is_test?: boolean
+          last_access_at?: string | null
+          must_change_password?: boolean
+          username: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_test?: boolean
+          last_access_at?: string | null
+          must_change_password?: boolean
+          username?: string
+        }
+        Relationships: []
+      }
       tank_levels: {
         Row: {
           created_at: string | null
@@ -176,18 +227,58 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      account_test_default: { Args: never; Returns: boolean }
+      admin_mutate_record: {
+        Args: {
+          patch: Json
+          reason: string
+          record_id: string
+          remove_record?: boolean
+          table_name: string
+        }
+        Returns: undefined
+      }
+      bootstrap_existing_admin: { Args: { target: string }; Returns: undefined }
+      can_operate: { Args: never; Returns: boolean }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       import_legacy_fuel_logs: {
         Args: { filename: string; records: Json }
         Returns: Json
       }
+      is_active_account: { Args: never; Returns: boolean }
+      record_access: { Args: never; Returns: undefined }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "colaborador"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -314,6 +405,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "colaborador"],
+    },
   },
 } as const
