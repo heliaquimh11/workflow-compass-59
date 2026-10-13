@@ -1,4 +1,6 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { useState } from "react";
 import { BarChart3, Droplets, Fuel, Menu, Truck, X } from "lucide-react";
 import { useSession } from "@/lib/auth";
@@ -6,6 +8,12 @@ import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
+  beforeLoad: async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user || data.user.is_anonymous) throw redirect({ to: '/login' });
+    const result = await supabase.from('profiles').select('active').eq('id', data.user.id).maybeSingle();
+    if (result.error || !result.data?.active) throw redirect({ to: '/login' });
+  },
   component: Layout,
 });
 
@@ -17,6 +25,8 @@ const opTabs = [
 
 function Layout() {
   const { session, loading, error, retry } = useSession();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
 
   if (loading) {
@@ -54,6 +64,7 @@ function Layout() {
               </Link>
             ))}
           </nav>
+          <Button variant="ghost" onClick={async () => { await queryClient.cancelQueries(); queryClient.clear(); await supabase.auth.signOut(); await navigate({ to: '/login', replace: true }); }}>Sair</Button>
           <Button variant="ghost" aria-label="Menu" onClick={() => setOpen(!open)} className="flex h-12 w-12 items-center justify-center rounded-md lg:hidden">
             {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </Button>
