@@ -37,7 +37,10 @@ function Login() {
         if (result.error || !result.session) { setError(result.error ?? 'Não foi possível entrar.'); return; }
         const saved = await supabase.auth.setSession(result.session);
         if (saved.error) { setError('Não foi possível manter o acesso.'); return; }
-        setPassword(''); await navigate({ to: '/gestao', replace: true });
+        setPassword('');
+        const user = saved.data.user;
+        const role = user ? await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' }) : null;
+        await navigate({ to: role?.data ? '/gestao' : '/consumo', replace: true });
       } catch { setError('Não foi possível entrar. Tente novamente.'); }
       finally { setBusy(false); }
     }}>

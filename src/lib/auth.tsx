@@ -13,16 +13,20 @@ export function SessionProvider({ children, onIdentityChange }: { children: Reac
     let active = true;
     setLoading(true);
     setError(null);
+    let identityVersion = 0;
     const { data } = supabase.auth.onAuthStateChange((event, s) => {
       if (!active) return;
+      identityVersion += 1;
       setSession(s?.user.is_anonymous ? null : s);
-      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') onIdentityChange(event === 'SIGNED_OUT');
+      setLoading(false);
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') queueMicrotask(() => onIdentityChange(event === 'SIGNED_OUT'));
     });
+    const initialVersion = identityVersion;
     supabase.auth.getUser().then(async ({ data, error }) => {
-      if (!active) return;
+      if (!active || identityVersion !== initialVersion) return;
       if (error || !data.user || data.user.is_anonymous) { setSession(null); setLoading(false); return; }
       const result = await supabase.auth.getSession();
-      if (active) { setSession(result.data.session); setLoading(false); }
+      if (active && identityVersion === initialVersion) { setSession(result.data.session); setLoading(false); }
     }).catch((err: unknown) => {
       if (active) {
         setError(err instanceof Error ? err.message : "Não foi possível validar o acesso.");
