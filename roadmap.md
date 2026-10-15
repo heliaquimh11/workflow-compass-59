@@ -1,4 +1,5 @@
 # Controle de Abastecimento
+- [ ] Pedido atual: completar apenas Usuários (criação por classe, login automático, listagem, senha, ativação/desativação e mudança de classe) e permissões; validar ponta a ponta sem Limpeza B.
 - [ ] Executar Etapa 1 na prioridade do documento aprovado: login e primeiro ADM existente, segurança/RLS/auditoria, usuários, sessão, senhas e verificação do bloqueio; não repetir Limpeza A.
 - [x] Limpeza A autorizada: exportar CSVs, conferir contas/contagens, limpar registros em transação com resumo único, remover fotos via Storage e contas anônimas via Auth; verificar resultado.
 - [ ] Limpeza B bloqueada até novo pedido do usuário após validação da Etapa 1; não executar automaticamente.
