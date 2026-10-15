@@ -16,6 +16,7 @@ import { Route as AuthenticatedConsumoRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedGestaoRouteImport } from './routes/_authenticated/gestao'
 import { Route as AuthenticatedPedidoRouteImport } from './routes/_authenticated/pedido'
 import { Route as AuthenticatedTanqueRouteImport } from './routes/_authenticated/tanque'
+import { Route as AuthenticatedUsuariosRouteImport } from './routes/_authenticated/usuarios'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -51,6 +52,11 @@ const AuthenticatedTanqueRoute = AuthenticatedTanqueRouteImport.update({
   path: '/tanque',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedUsuariosRoute = AuthenticatedUsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/gestao': typeof AuthenticatedGestaoRoute
   '/pedido': typeof AuthenticatedPedidoRoute
   '/tanque': typeof AuthenticatedTanqueRoute
+  '/usuarios': typeof AuthenticatedUsuariosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/gestao': typeof AuthenticatedGestaoRoute
   '/pedido': typeof AuthenticatedPedidoRoute
   '/tanque': typeof AuthenticatedTanqueRoute
+  '/usuarios': typeof AuthenticatedUsuariosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -77,12 +85,27 @@ export interface FileRoutesById {
   '/_authenticated/gestao': typeof AuthenticatedGestaoRoute
   '/_authenticated/pedido': typeof AuthenticatedPedidoRoute
   '/_authenticated/tanque': typeof AuthenticatedTanqueRoute
+  '/_authenticated/usuarios': typeof AuthenticatedUsuariosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/consumo' | '/gestao' | '/pedido' | '/tanque'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/consumo'
+    | '/gestao'
+    | '/pedido'
+    | '/tanque'
+    | '/usuarios'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/consumo' | '/gestao' | '/pedido' | '/tanque'
+  to:
+    | '/'
+    | '/login'
+    | '/consumo'
+    | '/gestao'
+    | '/pedido'
+    | '/tanque'
+    | '/usuarios'
   id:
     | '__root__'
     | '/'
@@ -92,6 +115,7 @@ export interface FileRouteTypes {
     | '/_authenticated/gestao'
     | '/_authenticated/pedido'
     | '/_authenticated/tanque'
+    | '/_authenticated/usuarios'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -151,6 +175,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTanqueRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/usuarios': {
+      id: '/_authenticated/usuarios'
+      path: '/usuarios'
+      fullPath: '/usuarios'
+      preLoaderRoute: typeof AuthenticatedUsuariosRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -159,6 +190,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedGestaoRoute: typeof AuthenticatedGestaoRoute
   AuthenticatedPedidoRoute: typeof AuthenticatedPedidoRoute
   AuthenticatedTanqueRoute: typeof AuthenticatedTanqueRoute
+  AuthenticatedUsuariosRoute: typeof AuthenticatedUsuariosRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -166,6 +198,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedGestaoRoute: AuthenticatedGestaoRoute,
   AuthenticatedPedidoRoute: AuthenticatedPedidoRoute,
   AuthenticatedTanqueRoute: AuthenticatedTanqueRoute,
+  AuthenticatedUsuariosRoute: AuthenticatedUsuariosRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
