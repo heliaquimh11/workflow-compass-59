@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
@@ -12,8 +12,15 @@ import { fmtDateTime, fmtNum } from "@/lib/fuel";
 import { useSession } from "@/lib/auth";
 import { LegacyImport } from "@/components/LegacyImport";
 import { createFuelReport } from "@/lib/excel-report";
+import { RecordActions } from '@/components/RecordActions';
 
 export const Route = createFileRoute("/_authenticated/gestao")({
+  beforeLoad: async () => {
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) throw redirect({ to: '/login' });
+    const role = await supabase.rpc('has_role', { _user_id: user.data.user.id, _role: 'admin' });
+    if (!role.data) throw redirect({ to: '/consumo' });
+  },
   head: () => ({
     meta: [
       { title: "Gestão e Análise de Consumo | Controle de Abastecimento" },
@@ -123,12 +130,6 @@ function Gestao() {
     } catch { toast.error("Não foi possível exportar os registros."); }
   };
 
-  const updateStatus = async (id: string, status: string) => {
-    const { error } = await supabase.from("fuel_requests").update({ status }).eq("id", id);
-    if (error) toast.error(error.message);
-    else { toast.success("Status atualizado"); load(); }
-  };
-
   const Th = ({ k, children }: { k: SortKey; children: React.ReactNode }) => (
     <th className="px-4 py-3 text-left">
       <button onClick={() => toggleSort(k)} className="flex items-center gap-1 font-bold uppercase tracking-wide">
@@ -216,6 +217,7 @@ function Gestao() {
                 <Th k="liters">Litros</Th>
                 <Th k="tank_location">Tanque</Th>
                 <th className="px-4 py-3 text-left font-bold uppercase tracking-wide">Fotos</th>
+                <th className="px-4 py-3 text-left">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -231,10 +233,11 @@ function Gestao() {
                       <Images className="h-4 w-4" /> {l.photo_urls.length}
                     </Button> : <span className="text-xs text-muted-foreground">Legado · Sem fotos</span>}
                   </td>
+                  <td className="px-4 py-3"><RecordActions table="fuel_logs" id={l.id} values={{ license_plate: l.license_plate, odometer: l.odometer, liters: l.liters, tank_location: l.tank_location, fuel_date_time: l.fuel_date_time }} fields={[{ key: 'license_plate', label: 'Placa' }, { key: 'odometer', label: 'Hodômetro', type: 'number' }, { key: 'liters', label: 'Litros', type: 'number' }, { key: 'tank_location', label: 'Tanque', options: ['Leste', 'Norte', 'Ipiranga', 'Itaquera'] }, { key: 'fuel_date_time', label: 'Data/hora' }]} onSaved={() => void load()} /></td>
                 </tr>
               ))}
               {rows.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">Nenhum registro encontrado.</td></tr>
+                <tr><td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">Nenhum registro encontrado.</td></tr>
               )}
             </tbody>
           </table>
@@ -255,7 +258,7 @@ function Gestao() {
             <thead className="bg-muted">
               <tr className="text-left">
                 <th className="px-4 py-2">Data/Hora</th><th className="px-4 py-2">Nível atual</th><th className="px-4 py-2">Solicitado</th>
-                <th className="px-4 py-2">Última entrega</th><th className="px-4 py-2">Fotos</th><th className="px-4 py-2">Status</th>
+                <th className="px-4 py-2">Última entrega</th><th className="px-4 py-2">Fotos</th><th className="px-4 py-2">Status</th><th className="px-4 py-2">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -273,17 +276,18 @@ function Gestao() {
                     )}
                   </td>
                   <td className="px-4 py-2">
-                    <select value={r.status} onChange={(e) => updateStatus(r.id, e.target.value)} className="h-9 rounded-md border bg-card px-2 font-semibold">
-                      {["Pendente", "Aprovado", "Concluído", "Cancelado"].map((s) => <option key={s}>{s}</option>)}
-                    </select>
+                    {r.status}
                   </td>
+                  <td className="px-4 py-2"><RecordActions table="fuel_requests" id={r.id} values={{ current_tank_level: r.current_tank_level, requested_liters: r.requested_liters, status: r.status, request_date_time: r.request_date_time }} fields={[{ key: 'current_tank_level', label: 'Nível atual', type: 'number' }, { key: 'requested_liters', label: 'Litros solicitados', type: 'number' }, { key: 'status', label: 'Status', options: ['Pendente', 'Aprovado', 'Concluído', 'Cancelado'] }, { key: 'request_date_time', label: 'Data/hora' }]} onSaved={() => void load()} /></td>
                 </tr>
               ))}
-              {reqs.length === 0 && <tr><td colSpan={6} className="px-4 py-6 text-center text-muted-foreground">Nenhum pedido.</td></tr>}
+              {reqs.length === 0 && <tr><td colSpan={7} className="px-4 py-6 text-center text-muted-foreground">Nenhum pedido.</td></tr>}
             </tbody>
           </table>
         </div>
       </div>
+
+      <section className="space-y-3"><h2 className="text-2xl font-bold uppercase">Histórico de medições</h2><div className="overflow-x-auto border bg-card"><table className="w-full text-left text-sm"><thead className="bg-muted"><tr><th className="px-4 py-3">Data/hora</th><th className="px-4 py-3">Tanque</th><th className="px-4 py-3">Litros</th><th className="px-4 py-3">Ações</th></tr></thead><tbody>{[...levels].sort((a, b) => b.measurement_date_time.localeCompare(a.measurement_date_time)).map(l => <tr key={l.id} className="border-t"><td className="px-4 py-3">{fmtDateTime(l.measurement_date_time)}</td><td className="px-4 py-3">{l.tank_name}</td><td className="px-4 py-3">{fmtNum(l.current_liters)}</td><td className="px-4 py-3"><RecordActions table="tank_levels" id={l.id} values={{ tank_name: l.tank_name, current_liters: l.current_liters, measurement_date_time: l.measurement_date_time }} fields={[{ key: 'tank_name', label: 'Tanque', options: ['Leste', 'Norte', 'Ipiranga', 'Itaquera'] }, { key: 'current_liters', label: 'Litros', type: 'number' }, { key: 'measurement_date_time', label: 'Data/hora' }]} onSaved={() => void load()} /></td></tr>)}</tbody></table>{!levels.length && <p className="p-6 text-center text-muted-foreground">Nenhuma medição.</p>}</div></section>
 
       <Dialog open={!!gallery} onOpenChange={(o) => !o && setGallery(null)}>
         <DialogContent className="max-h-[90vh] max-w-5xl overflow-y-auto">
