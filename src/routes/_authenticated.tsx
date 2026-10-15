@@ -1,8 +1,8 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useState } from "react";
-import { BarChart3, Droplets, Fuel, Menu, Truck, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { BarChart3, Droplets, Fuel, Menu, Truck, Users, X } from "lucide-react";
 import { useSession } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 
@@ -28,6 +28,26 @@ function Layout() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    if (!session) { setIsAdmin(false); return; }
+    let active = true;
+    const check = async () => {
+      const result = await supabase.from('profiles').select('active').eq('id', session.user.id).maybeSingle();
+      if (!active) return;
+      if (!result.error && !result.data?.active) {
+        await queryClient.cancelQueries(); queryClient.clear();
+        await supabase.auth.signOut(); await navigate({ to: '/login', replace: true }); return;
+      }
+      const role = await supabase.rpc('has_role', { _user_id: session.user.id, _role: 'admin' });
+      if (active) setIsAdmin(role.data === true);
+    };
+    void check();
+    const interval = setInterval(check, 5000);
+    window.addEventListener('focus', check);
+    return () => { active = false; clearInterval(interval); window.removeEventListener('focus', check); };
+  }, [session?.user.id, navigate, queryClient]);
+  const tabs = isAdmin ? [...opTabs, { to: '/gestao', label: 'Gestão', icon: BarChart3 } as const, { to: '/usuarios', label: 'Usuários', icon: Users } as const] : opTabs;
 
   if (loading) {
     return <div className="flex min-h-screen items-center justify-center bg-navy text-navy-foreground">Carregando…</div>;
@@ -53,7 +73,7 @@ function Layout() {
             <span className="font-display text-xl font-bold uppercase tracking-wide">Abastecimento</span>
           </Link>
           <nav className="hidden items-center gap-1 lg:flex">
-            {[...opTabs, { to: "/gestao", label: "Gestão", icon: BarChart3 } as const].map((t) => (
+            {tabs.map((t) => (
               <Link
                 key={t.to}
                 to={t.to}
@@ -71,7 +91,7 @@ function Layout() {
         </div>
         {open && (
           <div className="border-t border-navy-2 bg-navy-2 px-4 py-2 lg:hidden">
-            {[...opTabs, { to: "/gestao", label: "Gestão / Análise", icon: BarChart3 } as const].map((t) => (
+            {tabs.map((t) => (
               <Link
                 key={t.to}
                 to={t.to}

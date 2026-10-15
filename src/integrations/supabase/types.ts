@@ -251,6 +251,30 @@ export type Database = {
     }
     Functions: {
       account_test_default: { Args: never; Returns: boolean }
+      admin_audit_password_reset: {
+        Args: { actor: string; target: string }
+        Returns: undefined
+      }
+      admin_finalize_account: {
+        Args: {
+          account_role: Database["public"]["Enums"]["app_role"]
+          actor: string
+          confirmed?: boolean
+          full_name: string
+          login_name: string
+          target: string
+        }
+        Returns: undefined
+      }
+      admin_manage_account: {
+        Args: {
+          action: string
+          confirmed?: boolean
+          new_role?: Database["public"]["Enums"]["app_role"]
+          target: string
+        }
+        Returns: undefined
+      }
       admin_mutate_record: {
         Args: {
           patch: Json

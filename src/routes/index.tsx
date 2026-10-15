@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { supabase } from '@/integrations/supabase/client';
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -18,7 +19,12 @@ export const Route = createFileRoute("/")({
 function Index() {
   const navigate = useNavigate();
   useEffect(() => {
-    navigate({ to: window.innerWidth < 1024 ? "/consumo" : "/gestao", replace: true });
+    void (async () => {
+      const user = await supabase.auth.getUser();
+      if (!user.data.user) { await navigate({ to: '/login', replace: true }); return; }
+      const role = await supabase.rpc('has_role', { _user_id: user.data.user.id, _role: 'admin' });
+      await navigate({ to: role.data && window.innerWidth >= 1024 ? '/gestao' : '/consumo', replace: true });
+    })();
   }, [navigate]);
   return <div className="flex min-h-screen items-center justify-center bg-navy text-navy-foreground">Carregando…</div>;
 }
