@@ -39,7 +39,6 @@ function Consumo() {
     if (!PLATE_RE.test(plate)) { toast.error("Placa inválida. Use o formato ABC1D23."); return; }
     if (!tank) { toast.error("Selecione a origem do tanque."); return; }
     if (Number(liters) <= 0) { toast.error("Litragem deve ser maior que zero."); return; }
-    if (files.length < 3) { toast.error("Envie no mínimo 3 fotos."); return; }
     setBusy(true);
     const tId = toast.loading("Enviando fotos…");
     try {
@@ -85,8 +84,8 @@ function Consumo() {
         <Field label="Origem do Tanque">
           <TankToggle value={tank} onChange={setTank} />
         </Field>
-        <Field label="Fotos (mínimo 3)">
-          <PhotoPicker files={files} onChange={setFiles} min={3} />
+        <Field label="Fotos (opcional)">
+          <PhotoPicker files={files} onChange={setFiles} />
         </Field>
         <Button type="submit" disabled={busy || !session} className="touch-target h-14 w-full text-lg font-bold">
           {busy ? "Enviando…" : "Registrar Abastecimento"}
