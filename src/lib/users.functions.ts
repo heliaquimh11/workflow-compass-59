@@ -68,13 +68,15 @@ export const changeAccount = createServerFn({ method: 'POST' }).middleware([requ
       const invalid = passwordError(data.password ?? '', targetRole, profile.data.username);
       if (invalid) throw new Error(invalid);
       const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
-      const changed = await supabaseAdmin.auth.admin.updateUserById(data.id, { password: data.password });
+      const changed = await supabaseAdmin.auth.admin.updateUserById(data.id, { password: data.password ?? '' });
       if (changed.error) throw new Error(authError(changed.error.code));
       const audit = await supabaseAdmin.rpc('admin_audit_password_reset', { actor: context.userId, target: data.id });
       if (audit.error) throw new Error('Senha alterada, mas a auditoria não foi confirmada. Solicite revisão antes de continuar.');
       if (data.action === 'password') return { ok: true };
     }
-    const result = await context.supabase.rpc('admin_manage_account', { target: data.id, action: data.action, new_role: data.role, confirmed: data.confirmed });
+    const rpcArgs: { target: string; action: string; confirmed: boolean; new_role?: 'admin' | 'colaborador' } = { target: data.id, action: data.action, confirmed: data.confirmed };
+    if (data.role) rpcArgs.new_role = data.role;
+    const result = await context.supabase.rpc('admin_manage_account', rpcArgs);
     if (result.error) throw new Error(result.error.message);
     return { ok: true };
   });

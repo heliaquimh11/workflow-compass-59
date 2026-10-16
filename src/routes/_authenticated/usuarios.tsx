@@ -33,7 +33,7 @@ function Accounts() {
   const fetchUsers = useServerFn(listAccounts), createUser = useServerFn(createAccount), changeUser = useServerFn(changeAccount);
   const { session } = useSession();
   const query = useQuery({ queryKey: ['admin-users'], queryFn: () => fetchUsers() });
-  const [dialog, setDialog] = useState<{ type: 'create' | 'password' | 'role' | 'activate' | 'deactivate'; user?: Account } | null>(null);
+  const [dialog, setDialog] = useState<{ type: 'create' | 'password' | 'role' | 'activate' | 'deactivate'; user?: Account | undefined } | null>(null);
   const [role, setRole] = useState<AccountRole>('colaborador');
   const [name, setName] = useState(''), [login, setLogin] = useState(''), [password, setPassword] = useState('');
   const [edited, setEdited] = useState(false), [confirmed, setConfirmed] = useState(false), [show, setShow] = useState(false), [busy, setBusy] = useState(false), [error, setError] = useState('');
