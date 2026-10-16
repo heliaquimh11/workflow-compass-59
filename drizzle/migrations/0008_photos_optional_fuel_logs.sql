@@ -1,0 +1,1 @@
+ALTER TABLE public.fuel_logs DROP CONSTRAINT fuel_minimum_photos;

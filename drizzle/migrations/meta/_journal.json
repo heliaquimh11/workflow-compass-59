@@ -57,6 +57,13 @@
       "when": 1792054261848,
       "tag": "0007_complete_admin_user_management",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792116554847,
+      "tag": "0008_photos_optional_fuel_logs",
+      "breakpoints": true
     }
   ]
 }
